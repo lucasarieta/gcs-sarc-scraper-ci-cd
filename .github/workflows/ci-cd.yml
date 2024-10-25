@@ -1,0 +1,44 @@
+name: sarc-scraper-ci-cd
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t sarc-scraper:latest .
+
+      - name: Save Docker image
+        run: docker save sarc-scraper:latest > sarc-scraper.tar
+
+      - name: Copy Docker image to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ec2-18-217-171-64.us-east-2.compute.amazonaws.com
+          USER: ec2-user
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          scp -o StrictHostKeyChecking=no -i private_key sarc-scraper.tar ${USER}@${HOST}:~
+
+      - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ec2-18-217-171-64.us-east-2.compute.amazonaws.com
+          USER: ec2-user
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
+            sudo usermod -aG docker $USER
+            newgrp docker
+            docker load < sarc-scraper.tar
+            docker stop sarc-scraper-ci-cd || true
+            docker rm sarc-scraper-ci-cd || true
+            docker run -d --name sarc-scraper-ci-cd -p 8080:8080 sarc-scraper:latest
+            rm sarc-scraper.tar
+          '
