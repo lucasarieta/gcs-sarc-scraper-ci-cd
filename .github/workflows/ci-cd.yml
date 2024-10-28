@@ -21,7 +21,7 @@ jobs:
       - name: Copy Docker image to EC2
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ec2-18-217-171-64.us-east-2.compute.amazonaws.com
+          HOST: ec2-18-217-159-201.us-east-2.compute.amazonaws.com
           USER: ec2-user
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
@@ -30,7 +30,7 @@ jobs:
       - name: Deploy to EC2
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ec2-18-217-171-64.us-east-2.compute.amazonaws.com
+          HOST: ec2-18-217-159-201.us-east-2.compute.amazonaws.com
           USER: ec2-user
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
