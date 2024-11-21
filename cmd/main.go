@@ -20,5 +20,5 @@ func main() {
 	scraperDomain := domain.ScraperDomain{}
 	scraperDomain.SetupRoutes(routes)
 
-	app.Logger.Fatal(app.Start(":8080"))
+	app.Logger.Fatal(app.Start(":80"))
 }
