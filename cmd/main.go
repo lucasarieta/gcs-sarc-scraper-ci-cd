@@ -14,7 +14,7 @@ func main() {
 
 	routes := app.Group("")
 	routes.GET("/", func(c echo.Context) error {
-		return c.String(200, "Hello World, testando!")
+		return c.String(200, "Hello World!")
 	})
 
 	scraperDomain := domain.ScraperDomain{}
